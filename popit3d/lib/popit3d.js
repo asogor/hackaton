@@ -1,4 +1,22 @@
 
+function Ballon(name,x,y,z,color)
+{
+    var id = name;
+    var posX = x;
+    var posY = y;
+    var posZ = z;
+    var color = color;
+    
+    this.getPosIDXKey = function()
+    {
+        return "X" + x + "Y" + y + "Z" + z; 
+    }
+    
+    this.getName = function()
+    {
+        return name;
+    }
+}
 
 function PopitGame()
 {
@@ -6,8 +24,12 @@ function PopitGame()
     var colorBlue = { r: 0.0, g: 0.0, b: 0.7 };
     var colorYellow = { r: 0.0, g: 0.0, b: 0.7 };
     var colorRed = { r: 0.7, g: 0.0, b: 0.0 };
+    var coordinateMap = [-4,-2,0,2,4];
     
     var colorMap = {r:colorRed,b:colorBlue,g:colorGreen,y:colorYellow};
+    
+    var ballonNameIDX = {};
+    var ballonPosIDX = {};
     
     this.getCubeNode = function(name,color,x,y,z)
     {
@@ -45,135 +67,135 @@ function PopitGame()
     this.getCubeNodes = function()
     {
         var balls = [
-            {name:"ball-1",x:-4,y:-4,z:-4,color:"r"},
-            {name:"ball-2",x:-4,y:-4,z:-2,color: "g"},
-            {name:"ball-3",x:-4,y:-4,z:0,color: "b"},
-            {name:"ball-4",x:-4,y:-4,z:2,color:"r"},
-            {name:"ball-5",x:-4,y:-4,z:4,color: "g"},
-            {name:"ball-6",x:-4,y:-2,z:-4,color: "g"},
-            {name:"ball-7",x:-4,y:-2,z:-2,color: "g"},
-            {name:"ball-8",x:-4,y:-2,z:0,color: "g"},
-            {name:"ball-9",x:-4,y:-2,z:2,color: "g"},
-            {name:"ball-10",x:-4,y:-2,z:4,color: "g"},
-            {name:"ball-11",x:-4,y:0,z:-4,color:"r"},
-            {name:"ball-12",x:-4,y:0,z:-2,color: "g"},
-            {name:"ball-13",x:-4,y:0,z:0,color: "b"},
-            {name:"ball-14",x:-4,y:0,z:2,color:"r"},
-            {name:"ball-15",x:-4,y:0,z:4,color: "g"},
-            {name:"ball-16",x:-4,y:2,z:-4,color: "g"},
-            {name:"ball-17",x:-4,y:2,z:-2,color: "g"},
-            {name:"ball-18",x:-4,y:2,z:0,color: "g"},
-            {name:"ball-19",x:-4,y:2,z:2,color: "g"},
-            {name:"ball-20",x:-4,y:2,z:4,color: "g"},
-            {name:"ball-21",x:-4,y:4,z:-4,color:"r"},
-            {name:"ball-22",x:-4,y:4,z:-2,color: "g"},
-            {name:"ball-23",x:-4,y:4,z:0,color: "b"},
-            {name:"ball-24",x:-4,y:4,z:2,color:"r"},
-            {name:"ball-25",x:-4,y:4,z:4,color: "g"},
+            {name:"ball-1",x:1,y:1,z:1,color:"r"},
+            {name:"ball-2",x:1,y:1,z:2,color: "g"},
+            {name:"ball-3",x:1,y:1,z:3,color: "b"},
+            {name:"ball-4",x:1,y:1,z:4,color:"r"},
+            {name:"ball-5",x:1,y:1,z:5,color: "g"},
+            {name:"ball-6",x:1,y:2,z:1,color: "g"},
+            {name:"ball-7",x:1,y:2,z:2,color: "g"},
+            {name:"ball-8",x:1,y:2,z:3,color: "g"},
+            {name:"ball-9",x:1,y:2,z:4,color: "g"},
+            {name:"ball-10",x:1,y:2,z:5,color: "g"},
+            {name:"ball-11",x:1,y:3,z:1,color:"r"},
+            {name:"ball-12",x:1,y:3,z:2,color: "g"},
+            {name:"ball-13",x:1,y:3,z:3,color: "b"},
+            {name:"ball-14",x:1,y:3,z:4,color:"r"},
+            {name:"ball-15",x:1,y:3,z:5,color: "g"},
+            {name:"ball-16",x:1,y:4,z:1,color: "g"},
+            {name:"ball-17",x:1,y:4,z:2,color: "g"},
+            {name:"ball-18",x:1,y:4,z:3,color: "g"},
+            {name:"ball-19",x:1,y:4,z:4,color: "g"},
+            {name:"ball-20",x:1,y:4,z:5,color: "g"},
+            {name:"ball-21",x:1,y:5,z:1,color:"r"},
+            {name:"ball-22",x:1,y:5,z:2,color: "g"},
+            {name:"ball-23",x:1,y:5,z:3,color: "b"},
+            {name:"ball-24",x:1,y:5,z:4,color:"r"},
+            {name:"ball-25",x:1,y:5,z:5,color: "g"},
             
-            {name:"ball-26",x:-2,y:-4,z:-4,color:"r"},
-            {name:"ball-27",x:-2,y:-4,z:-2,color: "g"},
-            {name:"ball-28",x:-2,y:-4,z:0,color: "b"},
-            {name:"ball-29",x:-2,y:-4,z:2,color:"r"},
-            {name:"ball-30",x:-2,y:-4,z:4,color: "g"},
-            {name:"ball-31",x:-2,y:-2,z:-4,color: "g"},
-            {name:"ball-32",x:-2,y:-2,z:-2,color: "g"},
-            {name:"ball-33",x:-2,y:-2,z:0,color: "g"},
-            {name:"ball-34",x:-2,y:-2,z:2,color: "g"},
-            {name:"ball-35",x:-2,y:-2,z:4,color: "g"},
-            {name:"ball-36",x:-2,y:0,z:-4,color:"r"},
-            {name:"ball-37",x:-2,y:0,z:-2,color: "g"},
-            {name:"ball-38",x:-2,y:0,z:0,color: "b"},
-            {name:"ball-39",x:-2,y:0,z:2,color:"r"},
-            {name:"ball-40",x:-2,y:0,z:4,color: "g"},
-            {name:"ball-41",x:-2,y:2,z:-4,color: "g"},
-            {name:"ball-42",x:-2,y:2,z:-2,color: "g"},
-            {name:"ball-43",x:-2,y:2,z:0,color: "g"},
-            {name:"ball-44",x:-2,y:2,z:2,color: "g"},
-            {name:"ball-45",x:-2,y:2,z:4,color: "g"},
-            {name:"ball-46",x:-2,y:4,z:-4,color:"r"},
-            {name:"ball-47",x:-2,y:4,z:-2,color: "g"},
-            {name:"ball-48",x:-2,y:4,z:0,color: "b"},
-            {name:"ball-49",x:-2,y:4,z:2,color:"r"},
-            {name:"ball-50",x:-2,y:4,z:4,color: "g"},
+            {name:"ball-26",x:2,y:1,z:1,color:"r"},
+            {name:"ball-27",x:2,y:1,z:2,color: "g"},
+            {name:"ball-28",x:2,y:1,z:3,color: "b"},
+            {name:"ball-29",x:2,y:1,z:4,color:"r"},
+            {name:"ball-30",x:2,y:1,z:5,color: "g"},
+            {name:"ball-31",x:2,y:2,z:1,color: "g"},
+            {name:"ball-32",x:2,y:2,z:2,color: "g"},
+            {name:"ball-33",x:2,y:2,z:3,color: "g"},
+            {name:"ball-34",x:2,y:2,z:4,color: "g"},
+            {name:"ball-35",x:2,y:2,z:5,color: "g"},
+            {name:"ball-36",x:2,y:3,z:1,color:"r"},
+            {name:"ball-37",x:2,y:3,z:2,color: "g"},
+            {name:"ball-38",x:2,y:3,z:3,color: "b"},
+            {name:"ball-39",x:2,y:3,z:4,color:"r"},
+            {name:"ball-40",x:2,y:3,z:5,color: "g"},
+            {name:"ball-41",x:2,y:4,z:1,color: "g"},
+            {name:"ball-42",x:2,y:4,z:2,color: "g"},
+            {name:"ball-43",x:2,y:4,z:3,color: "g"},
+            {name:"ball-44",x:2,y:4,z:4,color: "g"},
+            {name:"ball-45",x:2,y:4,z:5,color: "g"},
+            {name:"ball-46",x:2,y:5,z:1,color:"r"},
+            {name:"ball-47",x:2,y:5,z:2,color: "g"},
+            {name:"ball-48",x:2,y:5,z:3,color: "b"},
+            {name:"ball-49",x:2,y:5,z:4,color:"r"},
+            {name:"ball-50",x:2,y:5,z:5,color: "g"},
             
-            {name:"ball-51",x:0,y:-4,z:-4,color:"r"},
-            {name:"ball-52",x:0,y:-4,z:-2,color: "g"},
-            {name:"ball-53",x:0,y:-4,z:0,color: "b"},
-            {name:"ball-54",x:0,y:-4,z:2,color:"r"},
-            {name:"ball-55",x:0,y:-4,z:4,color: "g"},
-            {name:"ball-56",x:0,y:-2,z:-4,color: "g"},
-            {name:"ball-57",x:0,y:-2,z:-2,color: "g"},
-            {name:"ball-58",x:0,y:-2,z:0,color: "g"},
-            {name:"ball-59",x:0,y:-2,z:2,color: "g"},
-            {name:"ball-60",x:0,y:-2,z:4,color: "g"},
-            {name:"ball-61",x:0,y:0,z:-4,color:"r"},
-            {name:"ball-62",x:0,y:0,z:-2,color: "g"},                         
-            {name:"ball-63",x:0,y:0,z:0,color: "b"},
-            {name:"ball-64",x:0,y:0,z:2,color:"r"},
-            {name:"ball-65",x:0,y:0,z:4,color: "g"},
-            {name:"ball-66",x:0,y:2,z:-4,color: "g"},
-            {name:"ball-67",x:0,y:2,z:-2,color: "g"},
-            {name:"ball-68",x:0,y:2,z:0,color: "g"},
-            {name:"ball-69",x:0,y:2,z:2,color: "g"},
-            {name:"ball-70",x:0,y:2,z:4,color: "g"},
-            {name:"ball-71",x:0,y:4,z:-4,color:"r"},
-            {name:"ball-72",x:0,y:4,z:-2,color: "g"},
-            {name:"ball-73",x:0,y:4,z:0,color: "b"},
-            {name:"ball-74",x:0,y:4,z:2,color:"r"},
-            {name:"ball-75",x:0,y:4,z:4,color: "g"},
+            {name:"ball-51",x:3,y:1,z:1,color:"r"},
+            {name:"ball-52",x:3,y:1,z:2,color: "g"},
+            {name:"ball-53",x:3,y:1,z:3,color: "b"},
+            {name:"ball-54",x:3,y:1,z:4,color:"r"},
+            {name:"ball-55",x:3,y:1,z:5,color: "g"},
+            {name:"ball-56",x:3,y:2,z:1,color: "g"},
+            {name:"ball-57",x:3,y:2,z:2,color: "g"},
+            {name:"ball-58",x:3,y:2,z:3,color: "g"},
+            {name:"ball-59",x:3,y:2,z:4,color: "g"},
+            {name:"ball-60",x:3,y:2,z:5,color: "g"},
+            {name:"ball-61",x:3,y:3,z:1,color:"r"},
+            {name:"ball-62",x:3,y:3,z:2,color: "g"},                         
+            {name:"ball-63",x:3,y:3,z:3,color: "b"},
+            {name:"ball-64",x:3,y:3,z:4,color:"r"},
+            {name:"ball-65",x:3,y:3,z:5,color: "g"},
+            {name:"ball-66",x:3,y:4,z:1,color: "g"},
+            {name:"ball-67",x:3,y:4,z:2,color: "g"},
+            {name:"ball-68",x:3,y:4,z:3,color: "g"},
+            {name:"ball-69",x:3,y:4,z:4,color: "g"},
+            {name:"ball-70",x:3,y:4,z:5,color: "g"},
+            {name:"ball-71",x:3,y:5,z:1,color:"r"},
+            {name:"ball-72",x:3,y:5,z:2,color: "g"},
+            {name:"ball-73",x:3,y:5,z:3,color: "b"},
+            {name:"ball-74",x:3,y:5,z:4,color:"r"},
+            {name:"ball-75",x:3,y:5,z:5,color: "g"},
             
-            {name:"ball-76",x:2,y:-4,z:-4,color:"r"},
-            {name:"ball-77",x:2,y:-4,z:-2,color: "g"},
-            {name:"ball-78",x:2,y:-4,z:0,color: "b"},
-            {name:"ball-79",x:2,y:-4,z:2,color:"r"},
-            {name:"ball-80",x:2,y:-4,z:4,color: "g"},
-            {name:"ball-81",x:2,y:-2,z:-4,color: "g"},
-            {name:"ball-82",x:2,y:-2,z:-2,color: "g"},
-            {name:"ball-83",x:2,y:-2,z:0,color: "g"},
-            {name:"ball-84",x:2,y:-2,z:2,color: "g"},
-            {name:"ball-85",x:2,y:-2,z:4,color: "g"},
-            {name:"ball-86",x:2,y:0,z:-4,color:"r"},
-            {name:"ball-87",x:2,y:0,z:-2,color: "g"},                         
-            {name:"ball-88",x:2,y:0,z:0,color: "b"},
-            {name:"ball-89",x:2,y:0,z:2,color:"r"},
-            {name:"ball-90",x:2,y:0,z:4,color: "g"},
-            {name:"ball-91",x:2,y:2,z:-4,color: "g"},
-            {name:"ball-92",x:2,y:2,z:-2,color: "g"},
-            {name:"ball-93",x:2,y:2,z:0,color: "g"},
-            {name:"ball-94",x:2,y:2,z:2,color: "g"},
-            {name:"ball-95",x:2,y:2,z:4,color: "g"},
-            {name:"ball-96",x:2,y:4,z:-4,color:"r"},
-            {name:"ball-97",x:2,y:4,z:-2,color: "g"},
-            {name:"ball-98",x:2,y:4,z:0,color: "b"},
-            {name:"ball-99",x:2,y:4,z:2,color:"r"},
-            {name:"ball-100",x:2,y:4,z:4,color: "g"},
+            {name:"ball-76",x:4,y:1,z:1,color:"r"},
+            {name:"ball-77",x:4,y:1,z:2,color: "g"},
+            {name:"ball-78",x:4,y:1,z:3,color: "b"},
+            {name:"ball-79",x:4,y:1,z:4,color:"r"},
+            {name:"ball-80",x:4,y:1,z:5,color: "g"},
+            {name:"ball-81",x:4,y:2,z:1,color: "g"},
+            {name:"ball-82",x:4,y:2,z:2,color: "g"},
+            {name:"ball-83",x:4,y:2,z:3,color: "g"},
+            {name:"ball-84",x:4,y:2,z:4,color: "g"},
+            {name:"ball-85",x:4,y:2,z:5,color: "g"},
+            {name:"ball-86",x:4,y:3,z:1,color:"r"},
+            {name:"ball-87",x:4,y:3,z:2,color: "g"},                         
+            {name:"ball-88",x:4,y:3,z:3,color: "b"},
+            {name:"ball-89",x:4,y:3,z:4,color:"r"},
+            {name:"ball-90",x:4,y:3,z:5,color: "g"},
+            {name:"ball-91",x:4,y:4,z:1,color: "g"},
+            {name:"ball-92",x:4,y:4,z:2,color: "g"},
+            {name:"ball-93",x:4,y:4,z:3,color: "g"},
+            {name:"ball-94",x:4,y:4,z:4,color: "g"},
+            {name:"ball-95",x:4,y:4,z:5,color: "g"},
+            {name:"ball-96",x:4,y:5,z:1,color:"r"},
+            {name:"ball-97",x:4,y:5,z:2,color: "g"},
+            {name:"ball-98",x:4,y:5,z:3,color: "b"},
+            {name:"ball-99",x:4,y:5,z:4,color:"r"},
+            {name:"ball-100",x:4,y:5,z:5,color: "g"},
             
-            {name:"ball-101",x:4,y:-4,z:-4,color:"r"},
-            {name:"ball-102",x:4,y:-4,z:-2,color: "g"},
-            {name:"ball-103",x:4,y:-4,z:0,color: "b"},
-            {name:"ball-104",x:4,y:-4,z:2,color:"r"},
-            {name:"ball-105",x:4,y:-4,z:4,color: "g"},
-            {name:"ball-106",x:4,y:-2,z:-4,color: "g"},
-            {name:"ball-107",x:4,y:-2,z:-2,color: "g"},
-            {name:"ball-108",x:4,y:-2,z:0,color: "g"},
-            {name:"ball-109",x:4,y:-2,z:2,color: "g"},
-            {name:"ball-110",x:4,y:-2,z:4,color: "g"},
-            {name:"ball-111",x:4,y:0,z:-4,color:"r"},
-            {name:"ball-112",x:4,y:0,z:-2,color: "g"},                         
-            {name:"ball-113",x:4,y:0,z:0,color: "b"},
-            {name:"ball-114",x:4,y:0,z:2,color:"r"},
-            {name:"ball-115",x:4,y:0,z:4,color: "g"},
-            {name:"ball-116",x:4,y:2,z:-4,color: "g"},
-            {name:"ball-117",x:4,y:2,z:-2,color: "g"},
-            {name:"ball-118",x:4,y:2,z:0,color: "g"},
-            {name:"ball-119",x:4,y:2,z:2,color: "g"},
-            {name:"ball-120",x:4,y:2,z:4,color: "g"},
-            {name:"ball-121",x:4,y:4,z:-4,color:"r"},
-            {name:"ball-122",x:4,y:4,z:-2,color: "g"},
-            {name:"ball-123",x:4,y:4,z:0,color: "b"},
-            {name:"ball-124",x:4,y:4,z:2,color:"r"},
-            {name:"ball-125",x:4,y:4,z:4,color: "g"} 
+            {name:"ball-101",x:5,y:1,z:1,color:"r"},
+            {name:"ball-102",x:5,y:1,z:2,color: "g"},
+            {name:"ball-103",x:5,y:1,z:3,color: "b"},
+            {name:"ball-104",x:5,y:1,z:4,color:"r"},
+            {name:"ball-105",x:5,y:1,z:5,color: "g"},
+            {name:"ball-106",x:5,y:2,z:1,color: "g"},
+            {name:"ball-107",x:5,y:2,z:2,color: "g"},
+            {name:"ball-108",x:5,y:2,z:3,color: "g"},
+            {name:"ball-109",x:5,y:2,z:4,color: "g"},
+            {name:"ball-110",x:5,y:2,z:5,color: "g"},
+            {name:"ball-111",x:5,y:3,z:1,color:"r"},
+            {name:"ball-112",x:5,y:3,z:2,color: "g"},                         
+            {name:"ball-113",x:5,y:3,z:3,color: "b"},
+            {name:"ball-114",x:5,y:3,z:4,color:"r"},
+            {name:"ball-115",x:5,y:3,z:5,color: "g"},
+            {name:"ball-116",x:5,y:4,z:1,color: "g"},
+            {name:"ball-117",x:5,y:4,z:2,color: "g"},
+            {name:"ball-118",x:5,y:4,z:3,color: "g"},
+            {name:"ball-119",x:5,y:4,z:4,color: "g"},
+            {name:"ball-120",x:5,y:4,z:5,color: "g"},
+            {name:"ball-121",x:5,y:5,z:1,color:"r"},
+            {name:"ball-122",x:5,y:5,z:2,color: "g"},
+            {name:"ball-123",x:5,y:5,z:3,color: "b"},
+            {name:"ball-124",x:5,y:5,z:4,color:"r"},
+            {name:"ball-125",x:5,y:5,z:5,color: "g"} 
             
         ];
             
@@ -182,9 +204,19 @@ function PopitGame()
         for ( var i in balls )
         {
             var ball = balls[i];
-            result[i] = this.getCubeNode(ball.name,colorMap[ball.color],ball.x,ball.y,ball.z);
+            var ballon = new Ballon(ball.name,ball.x,ball.y,ball.z,colorMap[ball.color]);
+            ballonPosIDX[ballon.getPosIDXKey()] = ballon;
+            ballonNameIDX[ballon.getName()] = ballon;
+            
+            result[i] = this.getCubeNode(ball.name,colorMap[ball.color],coordinateMap[ball.x-1],coordinateMap[ball.y-1],coordinateMap[ball.z-1]);
         }
         return result;
+    }
+    
+    this.select = function(id)
+    {
+       alert("Grab BALL " + id + " >> " +  ballonNameIDX[id].getPosIDXKey());
+       ballonNameIDX[id];
     }
 }
 
@@ -265,28 +297,28 @@ SceneJS.createNode({
     ]
 });
 
+var yaw = 0;
+var pitch = 0;
+var lastX;
+var lastY;
+var dragging = false;
+
 function PickHandle(ballId)
 {
     var id = ballId;
     
-    this.do = function(event)
+    this.handle = function(event)
     {
-        alert("Grab BALL " + id);
+        dragging = false;
+        game.select("ball-" + id);
     }
 }
 
 for (i=1;i<125;i++)
 {
     var handler = new PickHandle(i);
-    SceneJS.withNode("ball-"+i).bind("picked", handler.do);
+    SceneJS.withNode("ball-"+i).bind("picked", handler.handle);
 }
-
-
-var yaw = 0;
-var pitch = 0;
-var lastX;
-var lastY;
-var dragging = false;
 
 SceneJS.withNode("theScene").render();
 
