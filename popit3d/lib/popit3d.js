@@ -70,6 +70,7 @@ function PopitGame()
     this.getCubeNode = function(name,color,x,y,z)
     {
         return {
+            id: "ROOT-" + name,
             type: "translate",
             x: x,
             y: y,
@@ -342,6 +343,20 @@ function PopitGame()
         eye.set("eye",zoom);
         SceneJS.withNode("theScene").render();
     }   
+    
+    this.pop = function()
+    {        
+        for( var select in selectedNodes)
+        {
+            SceneJS.Message.sendMessage({
+                    command: "update",
+                    target: "ballonCube",
+                    remove: {
+                        node: "ROOT-" + selectedNodes[select].getName()
+                    }
+            });
+        }
+    }
 }
 
 var game = new PopitGame();
@@ -460,6 +475,7 @@ function mouseDown(event) {
     lastX = event.clientX;
     lastY = event.clientY;
     dragging = true;
+    game.pop();
 }
 
 function mouseUp() {
