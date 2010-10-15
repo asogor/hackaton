@@ -65,6 +65,7 @@ function PopitGame()
     var ballonNameIDX = {};
     var ballonPosIDX = {};
     var selectedRootNameId = null;
+    var selectedNodes = null;
     
     this.getCubeNode = function(name,color,x,y,z)
     {
@@ -252,36 +253,85 @@ function PopitGame()
             var selectedMaterial = SceneJS.withNode("MATERIAL-" + selectedRootNameId);
             var selectedBallon = ballonNameIDX[selectedRootNameId];
             selectedMaterial.set("baseColor", selectedBallon.getColor());
+            for( var idx in selectedNodes)
+            {
+                material = SceneJS.withNode("MATERIAL-" + selectedNodes[idx].getName());
+                material.set("baseColor",  selectedNodes[idx].getColor());
+            }
         }
         var material = SceneJS.withNode("MATERIAL-" + id);
         material.set("baseColor",  ballonNameIDX[id].getSelectedColor());
         selectedRootNameId = id;
-        this.findReleated(ballonNameIDX[id]);
+        selectedNodes = this.findReleated(ballonNameIDX[id]);
+        for( var idx in selectedNodes)
+        {
+            material = SceneJS.withNode("MATERIAL-" + selectedNodes[idx].getName());
+            material.set("baseColor",  selectedNodes[idx].getSelectedColor());
+        }
     }
     
     this.findReleated = function(selectedBallon)
     {
-        var noMach = {};
+        var noMatch = {};
         var match = {};
+        var newMatch = {};
         
         var releated = selectedBallon.getReleated();
-        for ( var idx in releated )
+        while(releated.length > 0)
         {
-            // if the item exists
-            if(ballonNameIDX[releated[idx]])
+            newMatch={};
+            for ( var idx in releated )
             {
-                if(selectedBallon.getValue() == ballonNameIDX[releated[idx]].getValue())
+                // if the item exists
+                var ballonTested = ballonPosIDX[releated[idx]];
+                if(ballonTested)
                 {
-                    match[ballonNameIDX[releated[idx]].getId()] = ballonNameIDX[releated[idx]];
-                }
-                else
-                {
-                    noMatch[ballonNameIDX[releated[idx]].getId()] = ballonNameIDX[releated[idx]];
+                    if(selectedBallon.getValue() == ballonTested.getValue())
+                    {
+                        // do we know this match?
+                        if(!match[ballonTested.getName()])
+                        {
+                            match[ballonTested.getName()] = ballonTested;
+                            newMatch[ballonTested.getName()] = ballonTested;
+                        }
+                    }
+                    else
+                    {
+                        noMatch[ballonTested.getName()] = ballonTested;
+                    }
                 }
             }
+            var extendedMap = {};
+            // extend search to new releated
+            for(var newMatchKey in newMatch)
+            {
+                var extended = newMatch[newMatchKey].getReleated();
+                for( var e in extended)
+                {
+                    var extendedKey = extended[e];
+                    // look for nodes we never have seen
+                    // not in match, not in no match, and not a related we already seen
+                    if((!match[extendedKey])&&(!noMatch[extendedKey])&&(!extendedMap[extendedKey]))
+                    {
+                        extendedMap[extendedKey] = extendedKey;
+                    }   
+                }
+            }
+            
+            releated = [];
+            for(var key in extendedMap)
+            {
+                releated.push(key);
+            }
+        }
+            
+        var result = [];
+        
+        for(var key in match){
+            result.push(match[key]);
         }
         
-        return match;
+        return result;
     }
     
     this.zoom = function(amt)
