@@ -51,13 +51,14 @@ function PopitGame()
 {
     var colorGreen = { r: 0.0, g: 0.7, b: 0.0 };
     var colorBlue = { r: 0.0, g: 0.0, b: 0.7 };
-    var colorYellow = { r: 0.7, g: 0.7, b: 0.7 };
+    var colorYellow = { r: 0.7, g: 0.7, b: 0.0 };
     var colorRed = { r: 0.7, g: 0.0, b: 0.0 };
     var selectedColorGreen = { r: 0.0, g: 0.3, b: 0.0 };
     var selectedColorBlue = { r: 0.0, g: 0.0, b: 0.3 };
-    var selectedColorYellow = { r: 0.3, g: 0.3, b: 0.3 };
+    var selectedColorYellow = { r: 0.3, g: 0.3, b: 0.0 };
     var selectedColorRed = { r: 0.3, g: 0.0, b: 0.0 };
     var coordinateMap = [-4,-2,0,2,4];
+    var score = 0;
     
     var colorMap = {r:colorRed,b:colorBlue,g:colorGreen,y:colorYellow};
     var selectedColorMap = {r:selectedColorRed,b:selectedColorBlue,g:selectedColorGreen,y:selectedColorYellow};
@@ -79,9 +80,9 @@ function PopitGame()
                     id: "MATERIAL-" + name,
                     type: "material",
                     baseColor:      color,
-                    specularColor:  { r: 0.9, g: 0.9, b: 0.9 },
-                    specular:       0.9,
-                    shine:          6.0,
+                    specularColor:  { r: 0.2, g: 0.2, b: 0.2 },
+                    specular:       0.4,
+                    shine:          5.0,
                     nodes: [
                         {
                             type: "node",
@@ -346,6 +347,11 @@ function PopitGame()
     
     this.pop = function()
     {        
+        if((!selectedNodes)||(selectedNodes.length<2))
+        {
+            return;
+        }
+        
         for( var select in selectedNodes)
         {
             SceneJS.Message.sendMessage({
@@ -426,7 +432,7 @@ SceneJS.createNode({
                                     id: "ballonCube",
 
                                     nodes: game.getCubeNodes()
-                                }
+                                }   
                             ]
                         }
                             ]}]}
