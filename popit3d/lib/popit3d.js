@@ -1,11 +1,13 @@
 
-function Ballon(name,x,y,z,color)
+function Ballon(name,x,y,z,color,selectedColor,value)
 {
     var id = name;
     var posX = x;
     var posY = y;
     var posZ = z;
     var color = color;
+    var selectColor = selectedColor;
+    var value = value;
     
     this.getPosIDXKey = function()
     {
@@ -16,20 +18,53 @@ function Ballon(name,x,y,z,color)
     {
         return name;
     }
+    
+    this.getColor = function()
+    {
+        return color;
+    }
+    
+    this.getSelectedColor = function()
+    {
+        return selectColor;
+    }
+    
+    this.getValue = function()
+    {
+        return value;
+    }
+    
+    this.getReleated = function()
+    {
+        return [
+            "X" + x + "Y" + y + "Z" + (z+1),
+            "X" + x + "Y" + y + "Z" + (z-1),
+            "X" + (x+1) + "Y" + y + "Z" + z,
+            "X" + (x-1) + "Y" + y + "Z" + z,
+            "X" + x + "Y" + (y+1) + "Z" + z,
+            "X" + x + "Y" + (y-1) + "Z" + z
+        ];
+    }
 }
 
 function PopitGame()
 {
     var colorGreen = { r: 0.0, g: 0.7, b: 0.0 };
     var colorBlue = { r: 0.0, g: 0.0, b: 0.7 };
-    var colorYellow = { r: 0.0, g: 0.0, b: 0.7 };
+    var colorYellow = { r: 0.7, g: 0.7, b: 0.7 };
     var colorRed = { r: 0.7, g: 0.0, b: 0.0 };
+    var selectedColorGreen = { r: 0.0, g: 0.3, b: 0.0 };
+    var selectedColorBlue = { r: 0.0, g: 0.0, b: 0.3 };
+    var selectedColorYellow = { r: 0.3, g: 0.3, b: 0.3 };
+    var selectedColorRed = { r: 0.3, g: 0.0, b: 0.0 };
     var coordinateMap = [-4,-2,0,2,4];
     
     var colorMap = {r:colorRed,b:colorBlue,g:colorGreen,y:colorYellow};
+    var selectedColorMap = {r:selectedColorRed,b:selectedColorBlue,g:selectedColorGreen,y:selectedColorYellow};
     
     var ballonNameIDX = {};
     var ballonPosIDX = {};
+    var selectedRootNameId = null;
     
     this.getCubeNode = function(name,color,x,y,z)
     {
@@ -39,6 +74,7 @@ function PopitGame()
             y: y,
             z: z,
             nodes: [{
+                    id: "MATERIAL-" + name,
                     type: "material",
                     baseColor:      color,
                     specularColor:  { r: 0.9, g: 0.9, b: 0.9 },
@@ -60,10 +96,6 @@ function PopitGame()
         };
     }
     
-    this.pickABall = function(event) {
-            alert("Picked: a Ballon " + event);
-    }
-        
     this.getCubeNodes = function()
     {
         var balls = [
@@ -160,21 +192,21 @@ function PopitGame()
             {name:"ball-88",x:4,y:3,z:3,color: "b"},
             {name:"ball-89",x:4,y:3,z:4,color:"r"},
             {name:"ball-90",x:4,y:3,z:5,color: "g"},
-            {name:"ball-91",x:4,y:4,z:1,color: "g"},
-            {name:"ball-92",x:4,y:4,z:2,color: "g"},
+            {name:"ball-91",x:4,y:4,z:1,color: "y"},
+            {name:"ball-92",x:4,y:4,z:2,color: "y"},
             {name:"ball-93",x:4,y:4,z:3,color: "g"},
-            {name:"ball-94",x:4,y:4,z:4,color: "g"},
-            {name:"ball-95",x:4,y:4,z:5,color: "g"},
-            {name:"ball-96",x:4,y:5,z:1,color:"r"},
+            {name:"ball-94",x:4,y:4,z:4,color: "y"},
+            {name:"ball-95",x:4,y:4,z:5,color: "b"},
+            {name:"ball-96",x:4,y:5,z:1,color: "b"},
             {name:"ball-97",x:4,y:5,z:2,color: "g"},
             {name:"ball-98",x:4,y:5,z:3,color: "b"},
-            {name:"ball-99",x:4,y:5,z:4,color:"r"},
+            {name:"ball-99",x:4,y:5,z:4,color: "r"},
             {name:"ball-100",x:4,y:5,z:5,color: "g"},
             
-            {name:"ball-101",x:5,y:1,z:1,color:"r"},
+            {name:"ball-101",x:5,y:1,z:1,color: "r"},
             {name:"ball-102",x:5,y:1,z:2,color: "g"},
             {name:"ball-103",x:5,y:1,z:3,color: "b"},
-            {name:"ball-104",x:5,y:1,z:4,color:"r"},
+            {name:"ball-104",x:5,y:1,z:4,color: "r"},
             {name:"ball-105",x:5,y:1,z:5,color: "g"},
             {name:"ball-106",x:5,y:2,z:1,color: "g"},
             {name:"ball-107",x:5,y:2,z:2,color: "g"},
@@ -204,7 +236,7 @@ function PopitGame()
         for ( var i in balls )
         {
             var ball = balls[i];
-            var ballon = new Ballon(ball.name,ball.x,ball.y,ball.z,colorMap[ball.color]);
+            var ballon = new Ballon(ball.name,ball.x,ball.y,ball.z,colorMap[ball.color],selectedColorMap[ball.color],ball.color);
             ballonPosIDX[ballon.getPosIDXKey()] = ballon;
             ballonNameIDX[ballon.getName()] = ballon;
             
@@ -215,9 +247,51 @@ function PopitGame()
     
     this.select = function(id)
     {
-       alert("Grab BALL " + id + " >> " +  ballonNameIDX[id].getPosIDXKey());
-       ballonNameIDX[id];
+        if(selectedRootNameId)
+        {
+            var selectedMaterial = SceneJS.withNode("MATERIAL-" + selectedRootNameId);
+            var selectedBallon = ballonNameIDX[selectedRootNameId];
+            selectedMaterial.set("baseColor", selectedBallon.getColor());
+        }
+        var material = SceneJS.withNode("MATERIAL-" + id);
+        material.set("baseColor",  ballonNameIDX[id].getSelectedColor());
+        selectedRootNameId = id;
+        this.findReleated(ballonNameIDX[id]);
     }
+    
+    this.findReleated = function(selectedBallon)
+    {
+        var noMach = {};
+        var match = {};
+        
+        var releated = selectedBallon.getReleated();
+        for ( var idx in releated )
+        {
+            // if the item exists
+            if(ballonNameIDX[releated[idx]])
+            {
+                if(selectedBallon.getValue() == ballonNameIDX[releated[idx]].getValue())
+                {
+                    match[ballonNameIDX[releated[idx]].getId()] = ballonNameIDX[releated[idx]];
+                }
+                else
+                {
+                    noMatch[ballonNameIDX[releated[idx]].getId()] = ballonNameIDX[releated[idx]];
+                }
+            }
+        }
+        
+        return match;
+    }
+    
+    this.zoom = function(amt)
+    {
+        var eye = SceneJS.withNode("myEye");
+        var zoom = eye.get("eye");
+        zoom.z+=amt;
+        eye.set("eye",zoom);
+        SceneJS.withNode("theScene").render();
+    }   
 }
 
 var game = new PopitGame();
@@ -231,8 +305,9 @@ SceneJS.createNode({
 
     nodes: [
         {
+            id: "myEye",
             type: "lookAt",
-            eye : { x: 0, y: 2, z: -50},
+            eye : { x: 0, y: 0, z: -50},
             look : { x : 0.0, y : -1.0, z : 0 },
             up : { x: 0.0, y: 1.0, z: 0.0 },
 
@@ -335,11 +410,11 @@ function mouseDown(event) {
     lastX = event.clientX;
     lastY = event.clientY;
     dragging = true;
-    SceneJS.withNode("theScene").pick(event.offsetX, event.offsetY);
 }
 
 function mouseUp() {
     dragging = false;
+    SceneJS.withNode("theScene").render();
 }
 
 /* On a mouse drag, we'll re-render the scene, passing in
@@ -357,6 +432,10 @@ function mouseMove(event) {
 
         lastX = event.clientX;
         lastY = event.clientY;
+    }
+    else
+    {
+        SceneJS.withNode("theScene").pick(event.offsetX, event.offsetY);
     }
 }
 
