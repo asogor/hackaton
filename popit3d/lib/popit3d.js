@@ -1,3 +1,6 @@
+// SHAWN ART
+// ART END
+
 
 function Ballon(name,x,y,z,color,selectedColor,value)
 {
@@ -12,6 +15,14 @@ function Ballon(name,x,y,z,color,selectedColor,value)
     this.getPosIDXKey = function()
     {
         return "X" + x + "Y" + y + "Z" + z; 
+    }
+    
+    this.moveToNext = function()
+    {
+        if(posY<5)
+        {
+            posY+=1;
+        }
     }
     
     this.getName = function()
@@ -34,6 +45,11 @@ function Ballon(name,x,y,z,color,selectedColor,value)
         return value;
     }
     
+    this.getPosition = function()
+    {
+        return {x:posX,y:posY,z:posZ};
+    }
+    
     this.getReleated = function()
     {
         return [
@@ -44,6 +60,18 @@ function Ballon(name,x,y,z,color,selectedColor,value)
             "X" + x + "Y" + (y+1) + "Z" + z,
             "X" + x + "Y" + (y-1) + "Z" + z
         ];
+    }
+    
+    this.getNextPosIDXKey = function()
+    {
+        if(y<5)
+        {
+            return "X" + x + "Y" + (y+1) + "Z" + z;
+        }
+        else
+        {
+            return null;
+        }
     }
 }
 
@@ -269,6 +297,7 @@ function PopitGame()
         {
             material = SceneJS.withNode("MATERIAL-" + selectedNodes[idx].getName());
             material.set("baseColor",  selectedNodes[idx].getSelectedColor());
+            console.log("HIGHLIGHT: " + selectedNodes[idx].getPosIDXKey());
         }
     }
     
@@ -361,7 +390,74 @@ function PopitGame()
                         node: "ROOT-" + selectedNodes[select].getName()
                     }
             });
+            console.log("poped:" + selectedNodes[select].getPosIDXKey());
+            delete ballonPosIDX[selectedNodes[select].getPosIDXKey()]
         }
+        this.compressColumns();
+    }
+    
+    this.compressColumns = function()
+    {
+        var columnKeys = [];
+        var key = ""; 
+        
+        for (x=1;x<=5;x++)
+        {
+            for(z=1;z<=5;z++)
+            {
+                columnKeys = [];
+                for(y=1;y<=5;y++)
+                {
+                    key = "X" + x + "Y" + y + "Z" + z;
+                    columnKeys.push(key);
+                }
+                this.compressColumn(columnKeys);
+            }
+        }
+    }
+    
+    this.compressColumn = function(column)
+    {
+        var me = null;
+        var next = null;
+        var nextKey = null;
+        for(var key in column)
+        {
+            me = ballonPosIDX[column[key]];
+            next = null;
+            nextKey = null;
+            
+            if(me)
+            {
+                nextKey = me.getNextPosIDXKey();
+                if(nextKey)
+                {
+                    next = ballonPosIDX[nextKey];
+                    
+                    if(!next)
+                    {
+                        delete ballonPosIDX[me.getPosIDXKey()];
+                        var realPosition = this.translatePosition(me.getPosition());
+                        console.log("FROM:" + me.getPosIDXKey() + " REAL x:" + realPosition.x + " y:" + realPosition.y + " z:" + realPosition.z);
+                        me.moveToNext();
+                        ballonPosIDX[me.getPosIDXKey()] = me;
+                        realPosition = this.translatePosition(me.getPosition());
+                        console.log("MOVED:" + me.getPosIDXKey() + " REAL x:" + realPosition.x + " y:" + realPosition.y + " z:" + realPosition.z);
+                        
+                        SceneJS.Message.sendMessage({
+                                command: "update",
+                                target: "ROOT-" + me.getName(),
+                                set: realPosition
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    this.translatePosition = function(logicalPosition)
+    {
+        return {x:coordinateMap[logicalPosition.x-1],z:coordinateMap[logicalPosition.z-1],y:coordinateMap[logicalPosition.y-1]};
     }
 }
 
