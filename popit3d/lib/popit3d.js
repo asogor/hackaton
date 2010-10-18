@@ -75,21 +75,70 @@ function Ballon(name,x,y,z,color,selectedColor,value)
     }
 }
 
+var Color = new function () {
+    var green = { r: 0.0, g: 0.7, b: 0.0 };
+    var blue = { r: 0.0, g: 0.0, b: 0.7 };
+    var yellow = { r: 0.7, g: 0.7, b: 0.0 };
+    var red = { r: 0.7, g: 0.0, b: 0.0 };
+    var selectedGreen = { r: 0.0, g: 0.3, b: 0.0 };
+    var selectedBlue = { r: 0.0, g: 0.0, b: 0.3 };
+    var selectedYellow = { r: 0.3, g: 0.3, b: 0.0 };
+    var selectedRed = { r: 0.3, g: 0.0, b: 0.0 };
+    
+    this.colorMap = {r:red,b:blue,g:green,y:yellow};
+    this.selectedColorMap = {r:selectedRed,b:selectedBlue,g:selectedGreen,y:selectedYellow};
+}
+
+var Server = new function() {
+	var host = 'http://poppit3d.appspot.com';
+	
+	var parseServerData = function(data) {
+     	var balls = data.state;
+        var result = [];
+            
+        for ( var i in balls )
+        {
+            var ball = balls[i];
+            var ballon = new Ballon(ball[0],ball[1],ball[2],ball[3],Color.colorMap[ball[4]],Color.selectedColorMap[ball[4]],ball[4]);
+            result[i] = ballon;
+        }
+        return result;
+	}
+	
+	this.init = function(callback) {
+		$.getJSON(host + '/state', function(data) {
+	        var result = parseServerData(data);
+	        callback(result);
+		});
+	}
+	
+	this.load = function(id, callback) {
+		$.getJSON(host + '/load?id=' + id, function(data) {
+	        var result = parseServerData(data);
+	        callback(result);
+		});
+	}
+	
+	this.save = function(balloons, callback) {
+		var balls = []
+		for (var i in balloons) {
+			var balloon = balloons[i];
+			var position = balloon.getPosition();
+			var balloonList = [balloon.getName(), position.x, position.y, position.z, balloon.getValue()];
+			balls.push(balloonList);
+		}
+		$.post(host + '/save', 
+			{ "state":  JSON.stringify(balls)},
+			function(data) {
+		        callback(data);
+		});
+	}
+}
+
 function PopitGame(loadedCallback)
 {
-    var colorGreen = { r: 0.0, g: 0.7, b: 0.0 };
-    var colorBlue = { r: 0.0, g: 0.0, b: 0.7 };
-    var colorYellow = { r: 0.7, g: 0.7, b: 0.0 };
-    var colorRed = { r: 0.7, g: 0.0, b: 0.0 };
-    var selectedColorGreen = { r: 0.0, g: 0.3, b: 0.0 };
-    var selectedColorBlue = { r: 0.0, g: 0.0, b: 0.3 };
-    var selectedColorYellow = { r: 0.3, g: 0.3, b: 0.0 };
-    var selectedColorRed = { r: 0.3, g: 0.0, b: 0.0 };
+
     var coordinateMap = [-4,-2,0,2,4];
-    var score = 0;
-    
-    var colorMap = {r:colorRed,b:colorBlue,g:colorGreen,y:colorYellow};
-    var selectedColorMap = {r:selectedColorRed,b:selectedColorBlue,g:selectedColorGreen,y:selectedColorYellow};
     
     var ballonNameIDX = {};
     var ballonPosIDX = {};
@@ -99,23 +148,32 @@ function PopitGame(loadedCallback)
     
     // kick off load
     var jqueryNeedsMootoolsBind = this;
-	$.getJSON('http://poppit3d.appspot.com/state', function(data) {
-     	var balls = data.state;
-     
+    var setUpState = function(balloons) {
         var result = [];
             
-        for ( var i in balls )
+        for ( var i in balloons )
         {
-            var ball = balls[i];
-            var ballon = new Ballon(ball[0],ball[1],ball[2],ball[3],colorMap[ball[4]],selectedColorMap[ball[4]],ball[4]);
-            ballonPosIDX[ballon.getPosIDXKey()] = ballon;
-            ballonNameIDX[ballon.getName()] = ballon;
+            var balloon = balloons[i];
+            ballonPosIDX[balloon.getPosIDXKey()] = balloon;
+            ballonNameIDX[balloon.getName()] = balloon;
             
-            result[i] = jqueryNeedsMootoolsBind.getCubeNode(ball[0],colorMap[ball[4]],coordinateMap[ball[1]-1],coordinateMap[ball[2]-1],coordinateMap[ball[3]-1]);
+            var position = balloon.getPosition();
+            result[i] = jqueryNeedsMootoolsBind.getCubeNode(
+            		balloon.getName(),
+            		Color.colorMap[balloon.getValue()],
+            		coordinateMap[position.x-1],
+            		coordinateMap[position.y-1],
+            		coordinateMap[position.z-1]);
         }
         nodes = result;
         loadedCallback();
-	});
+	}
+    var args = getUrlVars();
+    if (args.id) {
+    	Server.load(args.id, setUpState)
+    } else {
+    	Server.init(setUpState);
+    }
  
     
     this.getCubeNode = function(name,color,x,y,z)
@@ -152,6 +210,17 @@ function PopitGame(loadedCallback)
     this.getCubeNodes = function()
     {
     	return nodes;
+    }
+    
+    this.saveState = function() 
+    {
+    	var balloons = [];
+    	for (var i in ballonPosIDX) {
+    	    balloons.push(ballonPosIDX[i]);
+    	}
+    	Server.save(balloons, function(id) {$('#showLink').text(
+    			'You can share your game with this link: '
+    			+ location.href + '?id=' + id)});
     }
        
     this.select = function(id)
@@ -490,5 +559,16 @@ function mouseMove(event) {
     }
 }
 
-
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
 
